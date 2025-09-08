@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { FileText, Code, Download, Palette } from "lucide-react";
 
 export default function Home() {
@@ -20,7 +14,7 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-gray-900">ResumeBuilder</h1>
           </div>
           <Link href="/build">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Button className="bg-blue-600 hover:bg-blue-700">
               Start Building
             </Button>
           </Link>
@@ -39,18 +33,11 @@ export default function Home() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/build">
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
-            >
+            <Button className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3">
               Start Building Now
             </Button>
           </Link>
-          <Button
-            variant="outline"
-            size="lg"
-            className="text-lg px-8 py-3 bg-transparent"
-          >
+          <Button className="text-lg px-8 py-3 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50">
             View Examples
           </Button>
         </div>
@@ -62,56 +49,25 @@ export default function Home() {
           Everything You Need to Build Perfect Resumes
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="text-center">
-            <CardHeader>
-              <Palette className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>Professional Templates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Choose from modern, classic, creative, and minimal templates
-                with customizable colors
-              </CardDescription>
-            </CardContent>
+          <Card className="text-center p-6 flex flex-col items-center">
+            <Palette className="h-12 w-12 text-blue-600 mb-4" />
+            <h3 className="text-xl font-bold mb-2">Professional Templates</h3>
+            <p className="text-gray-600">Choose from modern, classic, creative, and minimal templates with customizable colors</p>
           </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <Code className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <CardTitle>LaTeX Editor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Write custom LaTeX code with syntax highlighting,
-                auto-completion, and real-time compilation
-              </CardDescription>
-            </CardContent>
+          <Card className="text-center p-6 flex flex-col items-center">
+            <Code className="h-12 w-12 text-green-600 mb-4" />
+            <h3 className="text-xl font-bold mb-2">LaTeX Editor</h3>
+            <p className="text-gray-600">Write custom LaTeX code with syntax highlighting, auto-completion, and real-time compilation</p>
           </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <CardTitle>Live Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                See your resume update in real-time as you make changes to
-                content or LaTeX code
-              </CardDescription>
-            </CardContent>
+          <Card className="text-center p-6 flex flex-col items-center">
+            <FileText className="h-12 w-12 text-purple-600 mb-4" />
+            <h3 className="text-xl font-bold mb-2">Live Preview</h3>
+            <p className="text-gray-600">See your resume update in real-time as you make changes to content or LaTeX code</p>
           </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <Download className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-              <CardTitle>Export Options</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Download as PDF with custom formatting or export LaTeX source
-                code for further editing
-              </CardDescription>
-            </CardContent>
+          <Card className="text-center p-6 flex flex-col items-center">
+            <Download className="h-12 w-12 text-orange-600 mb-4" />
+            <h3 className="text-xl font-bold mb-2">Export Options</h3>
+            <p className="text-gray-600">Download as PDF with custom formatting or export LaTeX source code for further editing</p>
           </Card>
         </div>
       </section>
@@ -126,7 +82,7 @@ export default function Home() {
             Join thousands of professionals who trust our resume builder
           </p>
           <Link href="/build">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+            <Button className="text-lg px-8 py-3 bg-white text-blue-600 border border-white hover:bg-blue-50">
               Get Started Free
             </Button>
           </Link>

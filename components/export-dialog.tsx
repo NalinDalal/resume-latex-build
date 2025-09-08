@@ -1,26 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select } from "./ui/select";
+// Dialog and Tabs components removed as they do not exist
 import { Download, FileText, Code, Settings } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card } from "./ui/card";
 
 interface ExportDialogProps {
   resumeData: any;
@@ -125,259 +112,213 @@ export function ExportDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Download className="w-4 h-4 mr-2" />
-          Export Resume
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+      <div className="bg-white dark:bg-zinc-900 max-w-2xl w-full p-0 rounded-xl shadow-2xl">
+        <div className="p-8 pb-0 border-b">
+          <div className="flex items-center gap-3 text-2xl font-bold">
+            <Download className="w-6 h-6" />
             Export Resume
-          </DialogTitle>
-        </DialogHeader>
-
-        <Tabs defaultValue="pdf" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="pdf" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="w-full p-8 pt-4">
+          <div className="grid w-full grid-cols-2 mb-8 rounded-lg overflow-hidden">
+            <button className="flex items-center gap-2 text-lg font-semibold py-3 bg-muted" disabled>
+              <FileText className="w-5 h-5" />
               PDF Export
-            </TabsTrigger>
-            <TabsTrigger value="latex" className="flex items-center gap-2">
-              <Code className="w-4 h-4" />
+            </button>
+            <button className="flex items-center gap-2 text-lg font-semibold py-3" disabled>
+              <Code className="w-5 h-5" />
               LaTeX Source
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="pdf" className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                PDF Options
-              </h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="filename">Filename</Label>
-                  <Input
-                    id="filename"
-                    value={exportOptions.filename}
-                    onChange={(e) =>
-                      setExportOptions({
-                        ...exportOptions,
-                        filename: e.target.value,
-                      })
-                    }
-                    placeholder="resume"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="format">Paper Size</Label>
-                  <Select
-                    value={exportOptions.format}
-                    onValueChange={(value) =>
-                      setExportOptions({ ...exportOptions, format: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="a4">A4</SelectItem>
-                      <SelectItem value="letter">Letter</SelectItem>
-                      <SelectItem value="legal">Legal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="orientation">Orientation</Label>
-                  <Select
-                    value={exportOptions.orientation}
-                    onValueChange={(value) =>
-                      setExportOptions({ ...exportOptions, orientation: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="portrait">Portrait</SelectItem>
-                      <SelectItem value="landscape">Landscape</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="fontSize">Font Size</Label>
-                  <Select
-                    value={exportOptions.fontSize.toString()}
-                    onValueChange={(value) =>
-                      setExportOptions({
-                        ...exportOptions,
-                        fontSize: Number.parseInt(value),
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="9">9pt</SelectItem>
-                      <SelectItem value="10">10pt</SelectItem>
-                      <SelectItem value="11">11pt</SelectItem>
-                      <SelectItem value="12">12pt</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <Label>Margins (mm)</Label>
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  <div>
-                    <Label htmlFor="marginTop" className="text-xs">
-                      Top
-                    </Label>
-                    <Input
-                      id="marginTop"
-                      type="number"
-                      value={exportOptions.margins.top}
-                      onChange={(e) =>
-                        setExportOptions({
-                          ...exportOptions,
-                          margins: {
-                            ...exportOptions.margins,
-                            top: Number.parseInt(e.target.value),
-                          },
-                        })
-                      }
-                      className="text-xs"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="marginRight" className="text-xs">
-                      Right
-                    </Label>
-                    <Input
-                      id="marginRight"
-                      type="number"
-                      value={exportOptions.margins.right}
-                      onChange={(e) =>
-                        setExportOptions({
-                          ...exportOptions,
-                          margins: {
-                            ...exportOptions.margins,
-                            right: Number.parseInt(e.target.value),
-                          },
-                        })
-                      }
-                      className="text-xs"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="marginBottom" className="text-xs">
-                      Bottom
-                    </Label>
-                    <Input
-                      id="marginBottom"
-                      type="number"
-                      value={exportOptions.margins.bottom}
-                      onChange={(e) =>
-                        setExportOptions({
-                          ...exportOptions,
-                          margins: {
-                            ...exportOptions.margins,
-                            bottom: Number.parseInt(e.target.value),
-                          },
-                        })
-                      }
-                      className="text-xs"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="marginLeft" className="text-xs">
-                      Left
-                    </Label>
-                    <Input
-                      id="marginLeft"
-                      type="number"
-                      value={exportOptions.margins.left}
-                      onChange={(e) =>
-                        setExportOptions({
-                          ...exportOptions,
-                          margins: {
-                            ...exportOptions.margins,
-                            left: Number.parseInt(e.target.value),
-                          },
-                        })
-                      }
-                      className="text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={exportPDF}
-                disabled={isExporting}
-                className="bg-primary hover:bg-primary/90"
-              >
-                {isExporting ? "Exporting..." : "Export PDF"}
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="latex" className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">
-                LaTeX Source Export
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Export the LaTeX source code for your resume. You can compile
-                this with any LaTeX distribution.
-              </p>
-
+            </button>
+          </div>
+          {/* PDF Export Content */}
+          <Card className="p-8 bg-muted/40 rounded-lg shadow-sm mb-8">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+              <Settings className="w-6 h-6" />
+              PDF Options
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="latexFilename">Filename</Label>
+                <Label htmlFor="filename" className="text-base font-medium mb-1">Filename</Label>
                 <Input
-                  id="latexFilename"
+                  id="filename"
                   value={exportOptions.filename}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setExportOptions({
                       ...exportOptions,
                       filename: e.target.value,
                     })
                   }
                   placeholder="resume"
+                  className="text-base px-4 py-2"
                 />
               </div>
-            </Card>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={exportLatex}
-                disabled={isExporting}
-                className="bg-secondary hover:bg-secondary/90"
-              >
-                {isExporting ? "Exporting..." : "Export LaTeX"}
-              </Button>
+              <div>
+                <Label htmlFor="format" className="text-base font-medium mb-1">Paper Size</Label>
+                <Select
+                  id="format"
+                  value={exportOptions.format}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExportOptions({ ...exportOptions, format: e.target.value })}
+                  className="text-base px-4 py-2"
+                >
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                  <option value="legal">Legal</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="orientation" className="text-base font-medium mb-1">Orientation</Label>
+                <Select
+                  id="orientation"
+                  value={exportOptions.orientation}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExportOptions({ ...exportOptions, orientation: e.target.value })}
+                  className="text-base px-4 py-2"
+                >
+                  <option value="portrait">Portrait</option>
+                  <option value="landscape">Landscape</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="fontSize" className="text-base font-medium mb-1">Font Size</Label>
+                <Select
+                  id="fontSize"
+                  value={exportOptions.fontSize.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExportOptions({ ...exportOptions, fontSize: Number.parseInt(e.target.value) })}
+                  className="text-base px-4 py-2"
+                >
+                  <option value="9">9pt</option>
+                  <option value="10">10pt</option>
+                  <option value="11">11pt</option>
+                  <option value="12">12pt</option>
+                </Select>
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+            <div className="mt-6">
+              <Label className="text-base font-medium mb-2">Margins (mm)</Label>
+              <div className="grid grid-cols-4 gap-4 mt-2">
+                <div>
+                  <Label htmlFor="marginTop" className="text-xs">Top</Label>
+                  <Input
+                    id="marginTop"
+                    type="number"
+                    value={exportOptions.margins.top}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setExportOptions({
+                        ...exportOptions,
+                        margins: {
+                          ...exportOptions.margins,
+                          top: Number.parseInt(e.target.value),
+                        },
+                      })
+                    }
+                    className="text-xs px-2 py-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="marginRight" className="text-xs">Right</Label>
+                  <Input
+                    id="marginRight"
+                    type="number"
+                    value={exportOptions.margins.right}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setExportOptions({
+                        ...exportOptions,
+                        margins: {
+                          ...exportOptions.margins,
+                          right: Number.parseInt(e.target.value),
+                        },
+                      })
+                    }
+                    className="text-xs px-2 py-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="marginBottom" className="text-xs">Bottom</Label>
+                  <Input
+                    id="marginBottom"
+                    type="number"
+                    value={exportOptions.margins.bottom}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setExportOptions({
+                        ...exportOptions,
+                        margins: {
+                          ...exportOptions.margins,
+                          bottom: Number.parseInt(e.target.value),
+                        },
+                      })
+                    }
+                    className="text-xs px-2 py-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="marginLeft" className="text-xs">Left</Label>
+                  <Input
+                    id="marginLeft"
+                    type="number"
+                    value={exportOptions.margins.left}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setExportOptions({
+                        ...exportOptions,
+                        margins: {
+                          ...exportOptions.margins,
+                          left: Number.parseInt(e.target.value),
+                        },
+                      })
+                    }
+                    className="text-xs px-2 py-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+          <div className="flex justify-end gap-3 mt-8">
+            <Button onClick={() => setIsOpen(false)} className="rounded-full px-5 py-2 text-base font-medium">
+              Cancel
+            </Button>
+            <Button
+              onClick={exportPDF}
+              disabled={isExporting}
+              className="bg-primary hover:bg-primary/90 rounded-full px-5 py-2 text-base font-semibold"
+            >
+              {isExporting ? "Exporting..." : "Export PDF"}
+            </Button>
+          </div>
+          {/* LaTeX Export Content */}
+          <Card className="p-8 bg-muted/40 rounded-lg shadow-sm mt-8">
+            <h3 className="text-xl font-bold mb-6">LaTeX Source Export</h3>
+            <p className="text-muted-foreground mb-6 text-base">
+              Export the LaTeX source code for your resume. You can compile this with any LaTeX distribution.
+            </p>
+            <div>
+              <Label htmlFor="latexFilename" className="text-base font-medium mb-1">Filename</Label>
+              <Input
+                id="latexFilename"
+                value={exportOptions.filename}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setExportOptions({
+                    ...exportOptions,
+                    filename: e.target.value,
+                  })
+                }
+                placeholder="resume"
+                className="text-base px-4 py-2"
+              />
+            </div>
+          </Card>
+          <div className="flex justify-end gap-3 mt-8">
+            <Button onClick={() => setIsOpen(false)} className="rounded-full px-5 py-2 text-base font-medium">
+              Cancel
+            </Button>
+            <Button
+              onClick={exportLatex}
+              disabled={isExporting}
+              className="bg-secondary hover:bg-secondary/90 rounded-full px-5 py-2 text-base font-semibold"
+            >
+              {isExporting ? "Exporting..." : "Export LaTeX"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

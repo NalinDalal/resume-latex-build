@@ -1,12 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 
+// Updated global interface for window properties
+declare global {
+  interface Window {
+    latexjs?: any;
+    html2pdf?: any;
+  }
+}
+
 // This is a single-file Next.js page/component you can drop into app/page.tsx (Next 13+) or pages/index.tsx
 // Uses Tailwind for styling (no imports required). It dynamically loads latex.js for LaTeX -> HTML compilation
 // and html2pdf.js (via CDN) for a simple client-side PDF export. For production you may want a server-side
 // LaTeX compiler (tectonic) or a wasm build for full fidelity PDFs.
 
 export default function ResumeLatexBuilder() {
-  const [template, setTemplate] = useState<"modern" | "classic">("modern");
   const [name, setName] = useState("Your Name");
   const [title, setTitle] = useState("Software Engineer");
   const [email, setEmail] = useState("you@example.com");
@@ -24,6 +31,7 @@ export default function ResumeLatexBuilder() {
   ]);
   const [latex, setLatex] = useState("");
   const [compiledHtml, setCompiledHtml] = useState("");
+  const [template, setTemplate] = useState("");
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   // Build LaTeX from form fields
@@ -35,7 +43,7 @@ export default function ResumeLatexBuilder() {
       phone,
       summary,
       experience,
-      template,
+      template, // Added back
     });
     setLatex(doc);
   }, [name, title, email, phone, summary, experience, template]);
@@ -48,14 +56,11 @@ export default function ResumeLatexBuilder() {
         // load latex.js if not present
         // latex.js (cdn) exposes window.latexjs
         // We'll dynamically import it from jsdelivr
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         if (!window.latexjs) {
           await import(
             "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.min.js"
-          );
+          ) as any;
         }
-        // eslint-disable-next-line @ts-ignore
         const latexjs = window.latexjs;
         if (latexjs && latex) {
           try {
@@ -64,14 +69,14 @@ export default function ResumeLatexBuilder() {
             latexjs.parse(latex, { generator });
             const html = generator.domFragment().innerHTML;
             if (mounted) setCompiledHtml(html);
-          } catch (err) {
+          } catch {
             if (mounted)
               setCompiledHtml(
                 '<pre style="color:red">LaTeX compile error</pre>',
               );
           }
         }
-      } catch (err) {
+      } catch {
         if (mounted)
           setCompiledHtml(
             '<pre style="color:orange">Failed to load LaTeX compiler (cdn)</pre>',
@@ -96,9 +101,8 @@ export default function ResumeLatexBuilder() {
       },
     ]);
   }
-  function updateExperience(i: number, key: string, value: string) {
-    const next = experience.slice();
-    // @ts-ignore
+  function updateExperience(i: number, key: keyof Experience, value: string) {
+    const next = [...experience];
     next[i][key] = value;
     setExperience(next);
   }
@@ -120,13 +124,11 @@ export default function ResumeLatexBuilder() {
   // Export PDF using html2pdf (client-side). This is a pragmatic approach — for production use server-side latex conversion.
   async function exportPdf() {
     // load html2pdf if needed
-    // @ts-ignore
     if (!window.html2pdf) {
       await import(
         "https://cdn.jsdelivr.net/npm/html2pdf.js@0.9.3/dist/html2pdf.bundle.min.js"
-      );
+      ) as any;
     }
-    // @ts-ignore
     const opt = {
       margin: 10,
       filename: `${name.replace(/\s+/g, "_")}_resume.pdf`,
@@ -139,7 +141,7 @@ export default function ResumeLatexBuilder() {
       const node = previewRef.current.cloneNode(true) as HTMLElement;
       // small style reset
       node.style.background = "white";
-      // @ts-ignore
+      // @ts-expect-error: Dynamic import from CDN lacks TypeScript types
       window.html2pdf().from(node).set(opt).save();
     }
   }
@@ -152,14 +154,6 @@ export default function ResumeLatexBuilder() {
             Resume Builder + LaTeX Editor
           </h1>
           <div className="flex gap-3">
-            <select
-              value={template}
-              onChange={(e) => setTemplate(e.target.value as any)}
-              className="border rounded px-2 py-1"
-            >
-              <option value="modern">Modern</option>
-              <option value="classic">Classic</option>
-            </select>
             <button
               onClick={downloadTex}
               className="px-3 py-1 rounded bg-sky-600 text-white"
@@ -304,7 +298,17 @@ export default function ResumeLatexBuilder() {
   );
 }
 
-function generateLatexFromForm(data: any) {
+type Experience = { role: string; company: string; period: string; desc: string };
+type FormData = {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+  summary: string;
+  experience: Experience[];
+  template: string;
+};
+function generateLatexFromForm(data: FormData) {
   const { name, title, email, phone, summary, experience, template } = data;
   // A simple LaTeX template — tweak to taste. For production use more robust templating.
   const header = `\\documentclass[11pt]{article}
@@ -324,7 +328,7 @@ ${escapeLatex(summary)}
 ${experience
   .map(
     (
-      e: any,
+  e: Experience,
     ) => `\\textbf{${escapeLatex(e.role)}} -- ${escapeLatex(e.company)} \\hfill ${escapeLatex(e.period)}\\\\
 ${escapeLatex(e.desc)}\\\\[4pt]
 `,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { TemplateSelector } from "./template-selector";
 import { LaTeXEditor } from "./latex-editor";
 import { PDFPreview } from "./pdf-preview";
@@ -59,23 +59,22 @@ export function ResumeBuilder() {
   return (
     <div className="flex h-screen bg-background">
       {/* Left Panel - LaTeX Editor */}
-      <div className="w-1/2 border-r border-border flex flex-col">
+      <div className="w-full md:w-1/2 border-r border-border flex flex-col bg-card/80 transition-all duration-200">
         {/* Editor Header */}
-        <div className="p-4 border-b border-border bg-card flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Code className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">
+        <div className="p-6 border-b border-border bg-card flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <Code className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold text-foreground tracking-tight">
               LaTeX Editor
             </h2>
-            <div className="flex items-center gap-1 ml-2 px-2 py-1 bg-green-100 text-green-700 rounded-full">
-              <Zap className="w-3 h-3" />
-              <span className="text-xs font-medium">Live Compile</span>
+            <div className="flex items-center gap-1 ml-3 px-3 py-1 bg-green-100/80 text-green-700 rounded-full text-xs font-medium">
+              <Zap className="w-4 h-4" />
+              Live Compile
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="sm"
+              className="rounded-full px-4 py-2 text-sm font-medium border-border hover:border-primary/40 hover:bg-muted/60"
               onClick={() => setShowTemplateSelector(!showTemplateSelector)}
             >
               <Settings className="w-4 h-4 mr-2" />
@@ -85,8 +84,8 @@ export function ResumeBuilder() {
         </div>
 
         {showTemplateSelector && (
-          <div className="p-4 border-b border-border bg-muted/30">
-            <h3 className="text-sm font-semibold mb-3 text-foreground">
+          <div className="p-6 border-b border-border bg-muted/60 animate-fade-in">
+            <h3 className="text-base font-semibold mb-4 text-foreground">
               Choose Template
             </h3>
             <TemplateSelector
@@ -97,7 +96,7 @@ export function ResumeBuilder() {
         )}
 
         {/* LaTeX Editor */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-background/60">
           <LaTeXEditor
             code={latexCode}
             onChange={setLatexCode}
@@ -108,16 +107,16 @@ export function ResumeBuilder() {
       </div>
 
       {/* Right Panel - PDF Preview */}
-      <div className="w-1/2 flex flex-col">
+      <div className="w-full md:w-1/2 flex flex-col bg-card/80 transition-all duration-200">
         {/* Preview Header */}
-        <div className="p-4 border-b border-border bg-card flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">
+        <div className="p-6 border-b border-border bg-card flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <Eye className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold text-foreground tracking-tight">
               PDF Preview
             </h2>
-            <div className="flex items-center gap-1 ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-              <span className="text-xs font-medium">{selectedTemplate}</span>
+            <div className="flex items-center gap-1 ml-3 px-3 py-1 bg-blue-100/80 text-blue-700 rounded-full text-xs font-medium capitalize">
+              {selectedTemplate}
             </div>
           </div>
           <ExportDialog
@@ -129,7 +128,7 @@ export function ResumeBuilder() {
         </div>
 
         {/* PDF Preview */}
-        <div className="flex-1 overflow-auto bg-muted/30">
+        <div className="flex-1 overflow-auto bg-muted/40">
           <PDFPreview
             resumeData={resumeData}
             template={selectedTemplate}
