@@ -1,314 +1,150 @@
-"use client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { FileText, Code, Download, Palette } from "lucide-react";
 
-import React, { useEffect, useState, useRef } from "react";
-
-export default function Page() {
-  const [template, setTemplate] = useState<"modern" | "classic">("modern");
-  const [name, setName] = useState("Your Name");
-  const [title, setTitle] = useState("Software Engineer");
-  const [email, setEmail] = useState("you@example.com");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [summary, setSummary] = useState(
-    "A short, punchy professional summary.",
-  );
-  const [experience, setExperience] = useState([
-    {
-      role: "Frontend Engineer",
-      company: "Acme",
-      period: "2023 — Present",
-      desc: "Built UI and components.",
-    },
-  ]);
-  const [latex, setLatex] = useState("");
-  const [compiledHtml, setCompiledHtml] = useState("");
-  const previewRef = useRef<HTMLDivElement | null>(null);
-
-  // build latex doc from form
-  useEffect(() => {
-    const doc = generateLatexFromForm({
-      name,
-      title,
-      email,
-      phone,
-      summary,
-      experience,
-      template,
-    });
-    setLatex(doc);
-  }, [name, title, email, phone, summary, experience, template]);
-
-  // compile latex to html preview with latex.js
-  useEffect(() => {
-    let mounted = true;
-    async function compile() {
-      try {
-        // @ts-ignore
-        if (!window.latexjs) {
-          await import(
-            "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.min.js"
-          );
-        }
-        // @ts-ignore
-        const latexjs = window.latexjs;
-        if (latexjs && latex) {
-          const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-          latexjs.parse(latex, { generator });
-          const html = generator.domFragment().innerHTML;
-          if (mounted) setCompiledHtml(html);
-        }
-      } catch (err) {
-        if (mounted)
-          setCompiledHtml(
-            '<pre style="color:red">LaTeX compile error or library missing</pre>',
-          );
-      }
-    }
-    compile();
-    return () => {
-      mounted = false;
-    };
-  }, [latex]);
-
-  // manage experiences
-  function addExperience() {
-    setExperience([
-      ...experience,
-      {
-        role: "New Role",
-        company: "Company",
-        period: "Year — Year",
-        desc: "Description",
-      },
-    ]);
-  }
-  function updateExperience(i: number, key: string, value: string) {
-    const next = [...experience];
-    // @ts-ignore
-    next[i][key] = value;
-    setExperience(next);
-  }
-  function removeExperience(i: number) {
-    setExperience(experience.filter((_, idx) => idx !== i));
-  }
-
-  // download .tex
-  function downloadTex() {
-    const blob = new Blob([latex], { type: "text/x-tex" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${name.replace(/\\s+/g, "_")}_resume.tex`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // server-side PDF export
-  async function exportPdf() {
-    const res = await fetch("/api/compile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latex, filename: `${name}_resume.pdf` }),
-    });
-    if (res.ok) {
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${name.replace(/\\s+/g, "_")}_resume.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } else {
-      alert("PDF compilation failed");
-    }
-  }
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
-        <header className="col-span-12 flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold">
-            Resume Builder + LaTeX Editor
-          </h1>
-          <div className="flex gap-3">
-            <select
-              value={template}
-              onChange={(e) => setTemplate(e.target.value as any)}
-              className="border rounded px-2 py-1"
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="h-8 w-8 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">ResumeBuilder</h1>
+          </div>
+          <Link href="/build">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              Start Building
+            </Button>
+          </Link>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-5xl font-bold text-gray-900 mb-6 text-balance">
+          Create Professional Resumes with{" "}
+          <span className="text-blue-600">LaTeX Power</span>
+        </h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto text-pretty">
+          Build stunning resumes using our intuitive form builder or write
+          custom LaTeX code. Get real-time preview and export to PDF instantly.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/build">
+            <Button
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
             >
-              <option value="modern">Modern</option>
-              <option value="classic">Classic</option>
-            </select>
-            <button
-              onClick={downloadTex}
-              className="px-3 py-1 rounded bg-sky-600 text-white"
-            >
-              Download .tex
-            </button>
-            <button
-              onClick={exportPdf}
-              className="px-3 py-1 rounded bg-emerald-600 text-white"
-            >
-              Export PDF
-            </button>
-          </div>
-        </header>
+              Start Building Now
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            size="lg"
+            className="text-lg px-8 py-3 bg-transparent"
+          >
+            View Examples
+          </Button>
+        </div>
+      </section>
 
-        {/* left column */}
-        <section className="col-span-5 bg-white rounded shadow p-4 space-y-4">
-          <h2 className="font-semibold">Builder (Form → LaTeX)</h2>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              className="border rounded p-2"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Full name"
-            />
-            <input
-              className="border rounded p-2"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-            />
-            <input
-              className="border rounded p-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
-            <input
-              className="border rounded p-2"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone"
-            />
-          </div>
+      {/* Features */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          Everything You Need to Build Perfect Resumes
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="text-center">
+            <CardHeader>
+              <Palette className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <CardTitle>Professional Templates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Choose from modern, classic, creative, and minimal templates
+                with customizable colors
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-          <textarea
-            className="w-full h-24 border rounded p-2"
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-          />
+          <Card className="text-center">
+            <CardHeader>
+              <Code className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <CardTitle>LaTeX Editor</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Write custom LaTeX code with syntax highlighting,
+                auto-completion, and real-time compilation
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h3 className="font-medium">Experience</h3>
-            <div className="space-y-2 mt-2">
-              {experience.map((exp, i) => (
-                <div
-                  key={i}
-                  className="border rounded p-2 bg-gray-50 space-y-2"
-                >
-                  <div className="flex gap-2">
-                    <input
-                      className="border rounded p-1 flex-1"
-                      value={exp.role}
-                      onChange={(e) =>
-                        updateExperience(i, "role", e.target.value)
-                      }
-                    />
-                    <input
-                      className="border rounded p-1 flex-1"
-                      value={exp.company}
-                      onChange={(e) =>
-                        updateExperience(i, "company", e.target.value)
-                      }
-                    />
-                    <input
-                      className="border rounded p-1 w-32"
-                      value={exp.period}
-                      onChange={(e) =>
-                        updateExperience(i, "period", e.target.value)
-                      }
-                    />
-                    <button
-                      onClick={() => removeExperience(i)}
-                      className="px-2 bg-red-500 text-white rounded"
-                    >
-                      X
-                    </button>
-                  </div>
-                  <textarea
-                    className="w-full border rounded p-1"
-                    value={exp.desc}
-                    onChange={(e) =>
-                      updateExperience(i, "desc", e.target.value)
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={addExperience}
-              className="mt-2 px-3 py-1 rounded bg-gray-800 text-white"
-            >
-              Add experience
-            </button>
-          </div>
+          <Card className="text-center">
+            <CardHeader>
+              <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <CardTitle>Live Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                See your resume update in real-time as you make changes to
+                content or LaTeX code
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h3 className="font-medium">Raw LaTeX Editor</h3>
-            <textarea
-              className="w-full h-48 border rounded p-2 font-mono text-sm"
-              value={latex}
-              onChange={(e) => setLatex(e.target.value)}
-            />
-          </div>
-        </section>
+          <Card className="text-center">
+            <CardHeader>
+              <Download className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <CardTitle>Export Options</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Download as PDF with custom formatting or export LaTeX source
+                code for further editing
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-        {/* right column */}
-        <section className="col-span-7">
-          <div className="bg-white rounded shadow h-full p-4" ref={previewRef}>
-            <div className="flex justify-between items-start">
-              <h2 className="font-semibold">Preview</h2>
-              <div className="text-xs text-gray-500">Rendered via latex.js</div>
-            </div>
-            <div
-              className="mt-3 border rounded p-4 overflow-auto"
-              style={{ minHeight: 600 }}
-              dangerouslySetInnerHTML={{ __html: compiledHtml }}
-            />
+      {/* CTA Section */}
+      <section className="bg-blue-600 text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Build Your Perfect Resume?
+          </h2>
+          <p className="text-xl mb-8 text-blue-100">
+            Join thousands of professionals who trust our resume builder
+          </p>
+          <Link href="/build">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+              Get Started Free
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <FileText className="h-6 w-6" />
+            <span className="text-lg font-semibold">ResumeBuilder</span>
           </div>
-        </section>
-      </div>
-    </div>
+          <p className="text-gray-400">
+            Professional resume builder with LaTeX support
+          </p>
+        </div>
+      </footer>
+    </main>
   );
-}
-
-function generateLatexFromForm(data: any) {
-  const { name, title, email, phone, summary, experience } = data;
-  const header = `\\\\documentclass[11pt]{article}
-\\\\usepackage[utf8]{inputenc}
-\\\\usepackage[T1]{fontenc}
-\\\\usepackage{geometry}
-\\\\geometry{left=1in,right=1in,top=1in,bottom=1in}
-\\\\usepackage{hyperref}
-\\\\begin{document}
-`;
-  const footer = "\\\\end{document}\\n";
-  const nameBlock = `\\\\begin{center}\\\\Huge{\\\\textbf{${escapeLatex(
-    name,
-  )}}}\\\\\\\\ \\\\vspace{2mm} \\\\large{${escapeLatex(
-    title,
-  )}}\\\\\\\\ \\\\normalsize ${escapeLatex(email)} ~|~ ${escapeLatex(
-    phone,
-  )} \\\\end{center}\\n\\\\vspace{4mm}\\n`;
-  const summaryBlock = `\\\\section*{Summary}
-${escapeLatex(summary)}
-`;
-  const expBlock = `\\\\section*{Experience}
-${experience
-  .map(
-    (e: any) =>
-      `\\\\textbf{${escapeLatex(e.role)}} -- ${escapeLatex(
-        e.company,
-      )} \\\\hfill ${escapeLatex(e.period)}\\\\\\\\
-${escapeLatex(e.desc)}\\\\\\\\[4pt]`,
-  )
-  .join("\\n")}
-`;
-  return header + nameBlock + summaryBlock + expBlock + footer;
-}
-
-function escapeLatex(s: string) {
-  if (!s) return "";
-  return s.replace(/([#$%&\\\\{}_^~])/g, "\\\\$1");
 }

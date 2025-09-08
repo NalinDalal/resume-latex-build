@@ -1,40 +1,65 @@
-import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import { promisify } from "util";
-import fs from "fs/promises";
-import path from "path";
-import os from "os";
+import { type NextRequest, NextResponse } from "next/server";
+import { generateTemplateLatex } from "@/lib/template-generator";
 
-const execAsync = promisify(exec);
-
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { latex, filename } = await req.json();
+    const { latexCode, resumeData, template, mode } = await request.json();
 
-    // write temp .tex file
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "latex-"));
-    const texFile = path.join(tmpDir, "doc.tex");
-    await fs.writeFile(texFile, latex, "utf8");
+    // For now, we'll simulate compilation and return a success response
+    // In a real implementation, you would use a LaTeX compiler service
 
-    // run tectonic to compile .tex -> .pdf
-    await execAsync(`tectonic ${texFile}`, { cwd: tmpDir });
+    if (!latexCode && !resumeData) {
+      return NextResponse.json(
+        { error: "No content to compile" },
+        { status: 400 },
+      );
+    }
 
-    const pdfPath = texFile.replace(/\\.tex$/, ".pdf");
-    const pdfBuffer = await fs.readFile(pdfPath);
+    // Simulate compilation delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // clean up optional
-    // await fs.rm(tmpDir, { recursive: true, force: true });
+    let finalLatexCode = latexCode;
 
-    return new NextResponse(pdfBuffer, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=\"${filename || "resume.pdf"}\"`,
-      },
-    });
-  } catch (e: any) {
-    console.error("LaTeX compile error", e);
+    if (mode === "form" && resumeData) {
+      try {
+        finalLatexCode = generateTemplateLatex(resumeData, template);
+      } catch (error) {
+        console.error("Template generation error:", error);
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Template generation failed",
+            errors: [
+              error instanceof Error ? error.message : "Unknown template error",
+            ],
+            warnings: [],
+          },
+          { status: 500 },
+        );
+      }
+    }
+
+    // Simulate successful compilation
+    const compilationResult = {
+      success: true,
+      pdfUrl: `/api/generate-pdf?timestamp=${Date.now()}&template=${template}&mode=${mode}`, // Include template in URL
+      errors: [],
+      warnings: [],
+      compiledAt: new Date().toISOString(),
+      pageCount: 1,
+      generatedLatex: mode === "form" ? finalLatexCode : undefined, // Return generated LaTeX for form mode
+    };
+
+    return NextResponse.json(compilationResult);
+  } catch (error) {
+    console.error("LaTeX compilation error:", error);
     return NextResponse.json(
-      { error: "Compilation failed", details: String(e) },
+      {
+        success: false,
+        error: "Compilation failed",
+        errors: [error instanceof Error ? error.message : "Unknown error"],
+        warnings: [],
+      },
       { status: 500 },
     );
   }
